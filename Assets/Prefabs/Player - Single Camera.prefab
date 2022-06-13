@@ -809,6 +809,8 @@ GameObject:
   - component: {fileID: 6411145375763843648}
   - component: {fileID: 6442070909665799135}
   - component: {fileID: 6442536628074655271}
+  - component: {fileID: 1306711750069264929}
+  - component: {fileID: -1266870840640025255}
   m_Layer: 0
   m_Name: Player - Single Camera
   m_TagString: Untagged
@@ -880,10 +882,34 @@ MonoBehaviour:
   m_UIInputModule: {fileID: 0}
   m_DeviceLostEvent:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1306711750069264929}
+        m_TargetAssemblyTypeName: HandleDeviceStates, Assembly-CSharp
+        m_MethodName: DeviceDisconnected
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_DeviceRegainedEvent:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1306711750069264929}
+        m_TargetAssemblyTypeName: HandleDeviceStates, Assembly-CSharp
+        m_MethodName: DeviceRegained
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_ControlsChangedEvent:
     m_PersistentCalls:
       m_Calls: []
@@ -936,9 +962,17 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: ae97aa85-e434-4c25-9ccb-25a62bca4bbe
     m_ActionName: Gameplay/Jump[/Keyboard/space,/XInputControllerWindows/buttonSouth]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 8af75ab3-c062-4786-846e-8a63e72804e9
+    m_ActionName: Interface/Interaction[/Keyboard/space,/Keyboard/enter,/XInputControllerWindows/buttonSouth]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 28b1b0a6-8501-4771-80fc-6956583d19b3
+    m_ActionName: Interface/Cancel[/Keyboard/escape,/XInputControllerWindows/buttonEast]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Gamepad
-  m_DefaultActionMap: Gameplay
+  m_DefaultActionMap: Interface
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
 --- !u!114 &6442070909665799135
@@ -970,6 +1004,40 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jumpStrength: 2
   groundCheck: {fileID: 6442522642856678211}
+--- !u!114 &1306711750069264929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6411145375763843651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65fc4dc315aecb941bca0f930ae61b36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-1266870840640025255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6411145375763843651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &6411647828475906537
 GameObject:
   m_ObjectHideFlags: 0
