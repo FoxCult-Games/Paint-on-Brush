@@ -39,6 +39,7 @@ namespace FoxCultGames.Multiplayer.Photon{
         [SerializeField] private string roomNameToShortMessage;
         [SerializeField] private string roomNameToLongMessage;
         [SerializeField] private string roomNameNotAllowedMessage;
+        [SerializeField] private string roomDoesNotExists;
 
         [Header("Menu Panels")]
         [SerializeField] private GameObject SelectPlayersPanel;
@@ -47,6 +48,8 @@ namespace FoxCultGames.Multiplayer.Photon{
         
         [Header("Player Selection")]
         [SerializeField] private TextMeshProUGUI RoomNameText;
+
+        private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
 
         void Start()
         {
@@ -90,15 +93,40 @@ namespace FoxCultGames.Multiplayer.Photon{
             OnRoomCreated?.Invoke(this, roomName);
         }
 
+        /// <summary>
+        /// Checks if room with passed name exists, if so then connect player to that room
+        /// </summary>
         public void JoinRoom(){
-            PhotonNetwork.CreateRoom(joinInput.text);
+            string roomName = joinInput.text;
+
+            if(!cachedRoomList.ContainsKey(roomName)){
+                OnJoinRoomNameNotValidated?.Invoke(this, roomDoesNotExists);
+                return;
+            }
+
+            PhotonNetwork.JoinRoom(roomName);
         }
+
+        /// <summary>
+        /// Triggers when player wants to leave room
+        /// </summary>
+        public void LeaveRoom(){
+            PhotonNetwork.LeaveRoom();
+        }   
 
         public override void OnJoinedRoom(){
             JoinRoomPanel.SetActive(false);
             CreateRoomPanel.SetActive(false);
 
             SelectPlayersPanel.SetActive(true);
+        }
+
+        public override void OnLeftRoom()
+        {
+            SelectPlayersPanel.SetActive(false);
+
+            JoinRoomPanel.SetActive(true);
+            CreateRoomPanel.SetActive(true);
         }
 
         /// <summary>
@@ -194,6 +222,50 @@ namespace FoxCultGames.Multiplayer.Photon{
             PhotonNetwork.CreateRoom(room, new RoomOptions() {
                 MaxPlayers = 4,
             });
+        }
+
+        /// <summary>
+        /// Cache new room list
+        /// </summary>
+        /// <param name="roomList">List of Photon2 rooms</param>
+        private void UpdateCachedRoomList(List<RoomInfo> roomList)
+        {
+            for(int i=0; i<roomList.Count; i++)
+            {
+                RoomInfo info = roomList[i];
+                if (info.RemovedFromList)
+                {
+                    cachedRoomList.Remove(info.Name);
+                }
+                else
+                {
+                    cachedRoomList[info.Name] = info;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Calls when room list has been updated and is caching new room list
+        /// </summary>
+        /// <param name="roomList"></param>
+        public override void OnRoomListUpdate(List<RoomInfo> roomList)
+        {
+            UpdateCachedRoomList(roomList);
+        }
+
+        public override void OnLeftLobby()
+        {
+            cachedRoomList.Clear();
+        }
+
+        public override void OnDisconnected(DisconnectCause cause)
+        {
+            cachedRoomList.Clear();
+        }
+
+        public override void OnConnectedToMaster()
+        {
+            PhotonNetwork.JoinLobby();
         }
 
         public enum ValidationType{
