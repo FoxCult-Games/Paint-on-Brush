@@ -6,7 +6,9 @@ using Photon.Pun;
 using Photon.Realtime;
 using System;
 using TMPro;
+using System.Linq;
 using Ludiq;
+using UnityEngine.UI;
 
 namespace FoxCultGames.Multiplayer.Photon{
     public class LobbyManager : MonoBehaviourPunCallbacks
@@ -20,6 +22,7 @@ namespace FoxCultGames.Multiplayer.Photon{
 
         public event EventHandler<string> OnRoomCreated;
         public event EventHandler<string> OnRoomJoined;
+        public event EventHandler<string> OnRoomLeft;
 
         public event EventHandler<string> OnCreateRoomNameNotValidated;
         public event EventHandler<string> OnJoinRoomNameNotValidated;
@@ -48,6 +51,11 @@ namespace FoxCultGames.Multiplayer.Photon{
         
         [Header("Player Selection")]
         [SerializeField] private TextMeshProUGUI RoomNameText;
+        private List<PlayerItem> playerItemList = new List<PlayerItem>();
+        [SerializeField] private PlayerItem playerItemPrefab;
+        [SerializeField] private Transform playerItemParent;
+        [SerializeField] private Button leaveRoomBtn;
+        [SerializeField] private Button startGameBtn;
 
         private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
 
@@ -65,6 +73,10 @@ namespace FoxCultGames.Multiplayer.Photon{
             OnRoomCreated += InitializeRoom;
             OnRoomCreated += SetRoomNameText;
 
+            OnRoomJoined += UpdatePlayerList;
+            
+            OnRoomLeft += UpdatePlayerList;
+
             OnCreateRoomNameNotValidated += ShowCreateErrorMessage;
             OnJoinRoomNameNotValidated += ShowJoinErrorMessage;
 
@@ -78,6 +90,12 @@ namespace FoxCultGames.Multiplayer.Photon{
             // Sets default button text
             createRoomBtnText.text = createRoomText;
             joinRoomBtnText.text = joinRoomText;
+        }
+
+        void Update()
+        {
+            if(!PhotonNetwork.IsMasterClient) startGameBtn.gameObject.SetActive(false);
+            else startGameBtn.gameObject.SetActive(true);
         }
 
         /// <summary>
@@ -114,11 +132,22 @@ namespace FoxCultGames.Multiplayer.Photon{
             PhotonNetwork.LeaveRoom();
         }   
 
+        /// <summary>
+        /// Triggers when master starts the game
+        /// </summary>
+        public void StartGame(){
+            PhotonNetwork.LoadLevel("SampleScene");
+        }
+
         public override void OnJoinedRoom(){
             JoinRoomPanel.SetActive(false);
             CreateRoomPanel.SetActive(false);
 
             SelectPlayersPanel.SetActive(true);
+
+            leaveRoomBtn.gameObject.SetActive(true);
+
+            OnRoomLeft?.Invoke(this, "");
         }
 
         public override void OnLeftRoom()
@@ -127,6 +156,29 @@ namespace FoxCultGames.Multiplayer.Photon{
 
             JoinRoomPanel.SetActive(true);
             CreateRoomPanel.SetActive(true);
+
+            leaveRoomBtn.gameObject.SetActive(false);
+
+            OnRoomLeft?.Invoke(this, "");
+        }
+        
+        /// <summary>
+        /// Updates player list on Player Select GUI
+        /// </summary>
+        /// <param name="o"></param>
+        /// <param name="nickname">Player nickname</param>
+        void UpdatePlayerList(object o, string nickname){
+            playerItemList.ForEach(item => Destroy(item.gameObject));
+            playerItemList.Clear();
+
+            if(PhotonNetwork.CurrentRoom == null) return;
+
+            foreach (KeyValuePair<int, Player> player in PhotonNetwork.CurrentRoom.Players)
+            {
+                PlayerItem playerItem = Instantiate(playerItemPrefab, playerItemParent);
+                playerItem.SetPlayerInfo(player.Value);
+                playerItemList.Add(playerItem);
+            }
         }
 
         /// <summary>
@@ -266,6 +318,16 @@ namespace FoxCultGames.Multiplayer.Photon{
         public override void OnConnectedToMaster()
         {
             PhotonNetwork.JoinLobby();
+        }
+
+        public override void OnPlayerEnteredRoom(Player newPlayer)
+        {
+            OnRoomJoined?.Invoke(this, newPlayer.NickName);
+        }
+
+        public override void OnPlayerLeftRoom(Player otherPlayer)
+        {
+            OnRoomLeft?.Invoke(this, otherPlayer.NickName);
         }
 
         public enum ValidationType{

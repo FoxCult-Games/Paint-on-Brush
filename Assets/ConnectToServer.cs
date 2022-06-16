@@ -86,6 +86,8 @@ namespace FoxCultGames.Multiplayer.Photon{
         void ConnectPlayer(object o, string nickname){
             // Sets nickname
             PhotonNetwork.NickName = nickname;
+            // Whether scenes should be sync for all players
+            PhotonNetwork.AutomaticallySyncScene = true;
             // Connect player to server with valid nickname
             PhotonNetwork.ConnectUsingSettings();
         }
