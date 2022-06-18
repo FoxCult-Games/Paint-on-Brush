@@ -20,6 +20,9 @@ public class FirstPersonMovement : MonoBehaviour
 
     Vector2 moveAxis = Vector2.zero;
 
+    [Header("Animations")]
+    [SerializeField] private Animator animator;
+
     void Awake()
     {
         // Get the rigidbody on this.
@@ -45,6 +48,12 @@ public class FirstPersonMovement : MonoBehaviour
             // Apply movement.
             rigidbody.velocity = transform.rotation * new Vector3(targetVelocity.x, rigidbody.velocity.y, targetVelocity.y);
     
+            // Resets animations
+            animator.SetBool("IsWalking", false);
+            animator.SetBool("IsRunning", false);
+
+            // Play proper animation
+            animator.SetBool(IsRunning ? "IsRunning" : "IsWalking", true);
         }
     }
 
